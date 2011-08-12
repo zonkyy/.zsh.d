@@ -1,0 +1,55 @@
+# -*- Shell-script -*-
+
+#####################################################################
+# key bindings
+#####################################################################
+# 端末設定
+#stty    erase   '^H'        # Ctrl+H に 1 文字削除
+#stty    intr    '^C'        # Ctrl+C に割り込み
+#stty    susp    '^Z'        # Ctrl+Z にサスペンド
+
+# zsh のキーバインド (EDITOR=vi かでも判断)
+bindkey -e    # emacs 風
+#bindkey -v     # vi 風
+#zle-line-init() { zle -K vicmd; } ; zle -N zle-line-init # 初期状態をコマンドモード
+
+# カーソル位置から前方削除
+# override kill-whole-line
+bindkey '^U' backward-kill-line
+
+# 履歴検索 = C-p,n で検索・補完
+autoload -U history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey "^P" history-beginning-search-backward-end
+bindkey "^N" history-beginning-search-forward-end
+#bindkey '^P' history-beginning-search-backward
+#bindkey '^N' history-beginning-search-forward
+
+# history incremental search
+#bindkey "^R" history-incremental-search-backward
+#bindkey "^S" history-incremental-search-forward
+bindkey "^S" history-incremental-search-backward
+
+# ワイルドカードの展開を確認
+#bindkey "^X" expand-word
+# ヘルプの表示
+#bindkey "^B" run-help
+# run-help が呼ばれた時、zsh の内部コマンドの場合は該当する zsh のマニュアル表示
+[ -n "`alias run-help`" ] && unalias run-help
+autoload run-help
+
+# ls /usr/local/etc などと打っている際に、C-w で単語ごとに削除
+# C-W→C-dに変更(行末で単語削除，行中で1文字削除)
+bindkey "^d" backward-kill-word
+# default  : ls /usr/local → ls /usr/ → ls /usr → ls /
+# この設定 : ls /usr/local → ls /usr/ → ls /
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+
+
+# キーボードマクロ
+bindkey -s '^[i' 'sudo apt-get install '
+bindkey -s '^[e' 'sudo leafpad '
+bindkey -s '^[s' 'sudo '
+bindkey -s '^[m' './configure && make && make install '
+bindkey -s '^[t' 'tar zxvf '

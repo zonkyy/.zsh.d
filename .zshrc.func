@@ -1,0 +1,248 @@
+# -*- Shell-script -*-
+
+#####################################################################
+# functions
+#####################################################################
+function akisute () {
+    while getopts l:t: opt
+    do
+        case ${opt} in
+            l)
+                LIST=${OPTARG};;
+            t)
+                TYPE=${OPTARG};;
+            \?)
+                exit 1;;
+        esac
+    done
+    echo "LIST=${LIST}"
+    echo "TYPE=${TYPE}"
+}
+
+#-------------------------------------------------------
+# cd && ls
+# ファイルを探して、そのファイルのある場所にcd
+function cd () {
+    if [ $# = 0 ]; then         #    % locate something.c
+        builtin cd              #        /usr/local/.../something.c
+    elif [ -f $1 ]; then        #    % cd `!!`
+        builtin cd $1:h
+    else
+        builtin cd $*
+    fi
+    ls -F --show-control-char --color=auto
+}
+
+#-------------------------------------------------------
+# history
+# 全履歴の一覧を出力する
+function history-all { history -E 1 }
+
+#-------------------------------------------------------
+# 引数のファイルの文字コードを変換
+function euc() {
+    for i in $@; do;
+        nkf -e -Lu $i >! /tmp/euc.$$ # -Lu :改行を LF にする
+        mv -f /tmp/euc.$$ $i
+    done;
+}
+function utf() {
+    for i in $@; do;
+        nkf -w -Lu $i >! /tmp/euc.$$ # -Lu :改行を LF にする
+        mv -f /tmp/euc.$$ $i
+    done;
+}
+function sjis() {
+    for i in $@; do;
+        nkf -s -Lw $i >! /tmp/euc.$$ # -Lw :改行を CR+LF にする
+        mv -f /tmp/euc.$$ $i
+    done;
+}
+
+#-------------------------------------------------------
+# 引数の検索ワードで google 検索 (日本語可)
+function google() {
+  local str opt
+  if [ $# != 0 ]; then # 引数が存在すれば
+    for i in $*; do
+      str="$str+$i"
+    done
+    str=`echo $str | sed 's/^\+//'` # 先頭の「+」を削除
+    opt='search?num=50&hl=ja&ie=euc-jp&oe=euc-jp&lr=lang_ja'
+    opt="${opt}&q=${str}"
+  fi
+  w3m http://www.google.co.jp/$opt # 引数がなければ $opt は空
+}
+alias goo=google
+
+#-------------------------------------------------------
+# rm でゴミ箱に移動
+function rm() {
+    # ~/.trashがなければ作成
+    if [ ! -d ~/.trash ]; then
+        mkdir ~/.trash
+        echo "mkdir ~/.trash"
+    fi
+
+    # .trash以下に移動
+    if [ -d ~/.trash ]; then
+        local DATE=`date "+%y%m%d"`
+        if [ ! -d ~/.trash/$DATE ]; then
+            mkdir ~/.trash/$DATE
+        fi
+        for i in $@; do
+            # 対象が ~/.trash/ 以下なファイルならば /bin/rm を呼び出す
+            if [ -e $i ]; then
+                mv $i ~/.trash/$DATE/
+            else
+                echo "$i : not found"
+            fi
+        done
+    else
+        echo "error"
+    fi
+}
+
+#-------------------------------------------------------
+# emptyでゴミ箱を空に
+function empty() {
+    find ~/.trash/* -print -delete
+    echo "*** ~/.trash is empty ***"
+}
+
+#-------------------------------------------------------
+# プリンタで txt ファイルを印刷
+# 1が前，2が後ろ
+function txtprint1() {
+    if [ -e $1 ]; then
+        a2ps-j $1 | lpr -Pps
+    else
+        echo "$i : not found"
+    fi
+}
+function txtprint2() {
+    if [ -e $1 ]; then
+        a2ps-j $1 | lpr -Pps2
+    else
+        echo "$i : not found"
+    fi
+}
+
+#-------------------------------------------------------
+# ./*.rbに対してrdoc自動生成
+function doc() {
+    cd ~/workspace/megaman/lib/
+    rdoc -S -N -U -T hanna -c utf-8 -f html -o ../doc *.rb
+}
+
+
+#-------------------------------------------------------
+# wikiのURLからアニメ情報をまとめたemacs museを作成
+function wiki() {
+    cd ~/documents/muse/anime_list/
+    ruby anime_wiki.rb
+}
+
+
+#-------------------------------------------------------
+# アニメの情報からテーブル作成
+function anime() {
+    cd ~/documents/muse/anime_list/
+    ruby create_list.rb
+}
+
+
+#-------------------------------------------------------
+# accept-line-with-url
+# http://sugi.nemui.org/doc/zsh/#doc2_14
+#      プロンプトにそのまま URL を打ちこんで Enter を押せば、
+#      ブラウザで表示したり、ダウンロードが可能。
+# 変数 WWW_BROWSER, DOWNLOADER, browse_or_download_method
+# browse_or_download_method="auto" # ask, auto, dwonload, browse
+# fpath=(~/.zsh $fpath)            # zsh function ディレクトリの設定
+# if autoload +X -U _accept_line_with_url > /dev/null 2>&1; then
+#   zle -N accept-line-with-url _accept_line_with_url
+#   bindkey '^M' accept-line-with-url
+#   #bindkey '^J' accept-line-with-url
+# fi
+
+# accept-line-with-url.simple
+# http://hiki.ex-machina.jp/zsh/?StartCommandWidgetized
+# start() {
+#     set -- ${(z)BUFFER}
+#     local handler
+#     if ! is_executable $1; then
+#         if [[ $1 == *:* ]]; then
+#             handler=$scheme_handler[${1%%:*}]
+#         else
+#             handler=$suffix_handler[${1##*.}]
+#         fi
+#         if [[ -n "$handler" ]]; then
+#             BUFFER=${handler/\$1/$1}
+#             zle end-of-line
+#             zle set-mark-command
+#             zle beginning-of-line
+#             zle forward-word
+#             zle quote-region
+#         fi
+#     fi
+#     zle accept-line
+# }
+# autoload start
+# zle -N start start
+# bindkey '^M' start
+# #bindkey '^J' start
+
+
+#-------------------------------------------------------
+## ターミナルのウィンドウ・タイトルを動的に変更.1
+#  precmd() {   # zshシェルのプロンプトが表示される前に毎回実行
+#      print -Pn "\e]0;[$HOST] %~\a"
+#  }
+#  preexec () { # コマンドが実行される直前に実行
+#      print -Pn "\e]0;[$1]: %~\a"
+#  }
+
+## ターミナルのウィンドウ・タイトルを動的に変更.2
+# hostname=`hostname -s`
+# function _setcaption() { echo -ne  "\e]1;${hostname}\a\e]2;${hostname}$1\a" > /dev/tty }
+# function chpwd() {  print -Pn "\e]2; [%m] : %~\a" }
+# chpwd
+# function _cmdcaption() { _setcaption " ($1)"; "$@"; chpwd }
+# for cmd in telnet slogin ssh rlogin rsh su sudo
+# do
+#     alias $cmd="_cmdcaption $cmd"
+# done
+
+## ターミナルのウィンドウ・タイトルを動的に変更.3 -- screen 対応版
+# precmd() {
+#     [[ -t 1 ]] || return
+#     case $TERM in
+#         *xterm*|rxvt|(dt|k|E)term)
+#             #print -Pn "\e]2;%n%%${ZSH_NAME}@%m:%~ [%l]\a"
+#             #print -Pn "\e]2;[%n@%m %~] [%l]\a"
+#             print -Pn "\e]2;[%n@%m %~]\a"      # %l ← pts/1 等の表示を削除
+#             ;;
+#         # screen)
+#         #      #print -Pn "\e]0;[%n@%m %~] [%l]\a"
+#         #      print -Pn "\e]0;[%n@%m %~]\a"
+#         #      ;;
+#     esac
+# }
+
+#-------------------------------------------------------
+# # CPU 使用率の高い方から8つ
+# function pst() {
+#   psa | head -n 1
+#   psa | sort -r -n +2 | grep -v "ps -auxww" | grep -v grep | head -n 8
+# }
+# # メモリ占有率の高い方から8つ
+# function psm() {
+#   psa | head -n 1
+#   psa | sort -r -n +3 | grep -v "ps -auxww" | grep -v grep | head -n 8
+# }
+# # 全プロセスから引数の文字列を含むものを grep
+# function psg() {
+#   psa | head -n 1                                    # ラベルを表示
+#   psa | grep $* | grep -v "ps -auxww" | grep -v grep # grep プロセスを除外
+# }

@@ -1,0 +1,162 @@
+# -*- Shell-script -*-
+
+#####################################################################
+# aliases
+#####################################################################
+# ゴミ箱
+# alias rm='trash'
+# alias trash-look='ls -al ~/.trash-dir/ 2> /dev/null'
+# alias trash-clean='\rm -rf ~/.trash-dir/* 2> /dev/null'
+
+# common
+alias del='rm -rf'
+alias cp='cp -irf'
+alias mv='mv -i'
+alias ..='cd ..'
+alias pd="pushd"
+alias po="popd"
+alias eng='LANG=C LANGUAGE=C LC_ALL=C'
+alias zcompile='zcompile ~/.zshrc'
+alias sc='screen'
+
+# よく間違えるもの
+alias dc='cd'
+alias bc='cd'
+
+#alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+alias cl='clear'
+#alias dircl='eval `dircolors ~/.dir_colors -b`'  ## for RedHat (FedoraCore)
+alias dircl='eval `dircolors -b ~/.dir_colors`'   ## for Debian
+alias q='exit';
+alias e='exit';
+alias quit='exit';
+
+alias kon='modprobe -q vga16fb; modprobe -q fbcon; jfbterm';
+alias jfbterm='LANG=ja_JP.eucJP /usr/bin/jfbterm'
+
+# IEEE paper
+alias mydvips='dvips -Ppdf -G0 -tletter'
+alias myps2pdf='ps2pdf -dCompatibilityLevel=1.3 -dMaxSubsetPct=100 -dSubsetFonts=true -dEmbedAllFonts=true -sPAPERSIZE=letter'
+
+# TeX -> eps
+alias pictex='dvips -Ppdf -E -D 600 -Z'
+
+# application
+# vi
+#alias vi='vi -i NONE'
+alias vi='vim'
+alias v='vim'
+alias via='vi ~/.bashrc'
+alias seta='source ~/.bashrc'
+alias gq='gqview'
+alias howm='vim -c Howm'
+alias cha='vim -c Changelog'
+
+# emacs
+alias wl='emacs -f wl'
+alias ehowm='emacs -f howm-menu'
+# alias emacs='emacs -nw'
+# alias em='emacs -nw'
+# alias e='emacs -nw'
+
+# a2ps (日本語表示のため)
+alias a2ps='a2ps --encoding=euc-jp'
+
+# vnc server
+alias vncstart='vncserver -geometry 1024x768 :1'
+alias vnckill='vncserver -kill :1'
+
+# midnight commander
+alias mc='mc -da'
+
+# grep 行数, 再帰的, ファイル名表示, 行数表示, バイナリファイルは処理しない
+alias grep='grep -i -r -H -n -I'
+
+# development
+alias py='python'
+alias gdb='gdb -silent'
+alias gpp='g++'
+
+# namazu + w3m
+#alias updatenmz='mknmz -a -O ~/.howm ~/Memo
+alias updatenmz='mknmz -O ~/.howm ~/Memo/'
+alias sr='srnmz'
+#alias s='srnmz'
+
+# 今迄の履歴を簡単に辿る
+alias gd='dirs -v; echo -n "select number: "; read newdir; cd +"$newdir"' # AUTO_PUSHD が必要
+# dirs -v  --  ディレクトリスタックを表示
+
+# 自分で作成した関数・エイリアスなどを確認
+alias m='less ~/.manual.my'
+
+# グローバルエイリアス
+alias -g G='| grep '  # e.x. dmesg lG CPU
+alias -g L='| $PAGER '
+alias -g W='| wc'
+alias -g H='| head'
+alias -g T='| tail'
+
+# 拡張子エイリアス
+alias -s zip=unzip
+alias -s tgz='tar zxvf'
+alias -s gz='tar zxvf'
+# alias -s tbz=bzcat
+# alias -s bz2=bzcat
+
+alias -s java=less
+alias -s c=less
+alias -s h=less
+alias -s C=less
+alias -s cpp=less
+#alias -s sh=less
+alias -s txt=less
+alias -s xml=less
+
+alias -s pdf=evince
+
+# alias -s html=firefox
+# alias -s xhtml=firefox
+
+# alias -s gif=display
+# alias -s jpg=display
+# alias -s jpeg=display
+# alias -s png=display
+# alias -s bmp=display
+
+# alias -s mp3=amarok
+# alias -s m4a=amarok
+# alias -s ogg=amarok
+
+# alias -s mpg=svlc
+# alias -s mpeg=svlc
+# alias -s avi=svlc
+# alias -s mp4v=svlc
+
+
+# colore-ls
+# 個人カラー設定のロード
+if [ -f ~/.dir_colors ]; then
+   eval `dircolors -b ~/.dir_colors`
+fi
+# ls
+alias la='ls -aF --show-control-char --color=always'
+alias ls='ls --show-control-char --color=always'
+alias ll='ls -l --show-control-char --color=always'
+alias l.='ls -d .[a-zA-Z]* --color=always'
+#zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # 補完候補を色分け (GNU ls の色定義を流用)
+
+# gem
+alias gem='C:/cygwin/bin/gem'
+
+# zmv
+alias zmv='noglob zmv -W'
+
+alias s='sudo'
+alias md='mkdir'
+
+# latex(utf8でコンパイル)
+alias platex='platex --kanji=utf8'
+
+# C#
+alias csc='/cygdrive/c/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe'
